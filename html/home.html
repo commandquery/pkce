@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--
+  This is a simple application page that calls a protected API via `api.js`.
+  `api.js` takes care of the logic of making an API call, and will redirect to
+  the login page if anything goes wrong.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+
+    <title>Home</title>
+    <script src="api.js"></script>
+    <script>
+        async function doJWTCall() {
+            const status = document.getElementById("jwtStatus")
+            const r = await call("/backend/jwt");
+            console.log(r)
+            if (r.status === 200)
+                status.innerText = "API call succeeded!"
+            else
+                status.innerText = "API call failed! :( see console."
+        }
+
+        function setAccessToken() {
+            document.getElementById("accessToken").innerText = sessionStorage.getItem("bookworkAccessToken")
+        }
+
+        //
+        // WARNING: You should never send an access token to anyone except the application APIs.
+        // This code uses jwt.io to display information about the JWT, but it should not be used
+        // in production.
+        //
+        // Note that using the URL fragment ID as the token means that, in theory, the JWT is never sent
+        // to anyone except the browser. jwt.io claims that all processing is in the browser,
+        // so this operation is probably secure, but generally it's better simply to keep the
+        // access token secret.
+        //
+        function debugJWT() {
+            jwtio = "https://jwt.io#token=" + sessionStorage.getItem("bookworkAccessToken")
+            console.log("redirecting to", jwtio)
+            window.location = jwtio.toString()
+        }
+    </script>
+</head>
+
+<body onload="setAccessToken()">
+    <!--
+    <h1>Application home</h1>
+
+    <p>This page represents a page of the application. It's not special.</p>
+
+    <p>Protected backend APIs require the use of an <code>access token</code> which
+        was stored in <code>session storage</code> by the <code>authorize.html</code> script.</p>
+
+    <h2>Perform a protected operation</h2>
+    <button onclick="doJWTCall()">Do API call with JWT Access Token only</button>
+    <div>Call Staus: <span id="jwtStatus">Waiting for button press</span></div>
+    -->
+
+    <h2>Access Token Information</h2>
+
+    <p><b style="color: red">Note:</b> <b>In production, JWTs should be kept private</b>. This button sends
+    the access token to jwt.io using a secure method, but this should not be done in production.</p>
+
+    <code style="word-wrap: break-word; word-break: break-all" id="accessToken">
+    </code>
+
+    <div style="cursor: pointer" onclick="debugJWT()"><img src="http://jwt.io/img/badge.svg"></div>
+</body>
+</html>

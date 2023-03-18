@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--
+  This page initiates a login. You wouldn't typically point the user to a login URL, but
+  rather, you would send them to an application page, which would make an API request,
+  which will return HTTP status 401 if you need the user to login. It becomes the application's
+  job to redirect the user to 401 if they can't log in. This is all handled in `api.js`.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+
+  <script>
+    async function doAuthRequest() {
+        // TODO: these values need to be parameterised in the application.
+        const clientID = "205769478103975430@bookwork"
+        const authorizeURL = "https://hello.bookwork.com/oauth/v2/authorize"
+        const redirectURI = "https://hello.bookwork.com/login/authorize.html"
+
+        // We need to generate a Zitadel URL which asks it to log the user in.
+        // The actual login process is described in the POC README.
+        const requestURL = new URL(authorizeURL)
+        const params = requestURL.searchParams
+
+        // Generate a random challenge string. This is reused when getting the access token.
+        // It's part of the PKCE flow. I've written more about this in the POC README and also
+        // in the authorise.html page.
+        //
+        // Generate a random byte array, and then convert it into a challenge string.
+        // Note that it's the random string that we need here, not the byte array.
+        const randomBytes = new Uint8Array(32)
+        crypto.getRandomValues(randomBytes)
+        let challengeString = btoa(String.fromCharCode.apply(null, randomBytes));
+
+        // Convert the challenge string into a byte array
+        // Note that this is different to the original byte array that we used to generate
+        // the string! It's all a bit annoying. :)
+        const textEncoder = new TextEncoder('UTF-8');
+        const challengeBytes = textEncoder.encode(challengeString);
+
+        // Hash the challenge string, and convert to base64
+        const challengeDigest = await crypto.subtle.digest("SHA-256", challengeBytes)
+        let digest64 = btoa(String.fromCharCode.apply(null, new Uint8Array(challengeDigest))).replace(/\//g, '_').replace(/[+]/g, '-');
+
+        // Store the challenge in session storage for the authorizing page.
+        // decode b64 to uint8 with https://stackoverflow.com/a/36046727/6716597
+        sessionStorage.setItem("bookworkCodeVerifier", challengeString)
+
+        // It appears that padding is stripped off from the encoding.
+        digest64 = digest64.replace(/=/g, '')
+
+        // Now, generate a URL that we redirect to. Zitadel then takes over to log
+        // the user in. That process might be quite complex, for example it might involve
+        // third parties like GitHub or Google.
+        params.append("client_id", clientID)
+        params.append("redirect_uri", redirectURI) // must be configured in the project
+        params.append("response_type", "code")
+        params.append("scope", "openid email profile")
+        params.append("code_challenge", digest64)
+        params.append("code_challenge_method", "S256") // zitadel requires this to be S256 (= sha256)
+
+        // alert(requestURL)
+
+        window.location = requestURL
+    }
+  </script>
+
+</head>
+<body>
+    <h1>Login redirect page</h1>
+
+    <p>This page represents code which would typically perform a blind redirect
+      to Zitadel to request a login.</p>
+
+    <p><b>We would not usually display a "login"
+        button here</b>, but it helps to explain how the login process works.</p>
+
+    <p>Typically, the JS authorization library we develop will redirect
+        to this page after an attempt to access a protected API fails with 401 status.
+        (Note: the library could also generate the URL itself; but that would make it
+        hard to upgrade authentication for all clients, and updates tend to apply to
+        the authentication system rather than individual apps).</p>
+
+    <p>This page works by constructing a Zitadel-specific URL that we redirect to. Zitadel
+        might then present page to let the user log in; or, if the user is already logged in,
+        it might just refresh the access token and continue as if nothing happened.</p>
+
+    <p>By adding a "state" parameter, we can also include the URL of the page that initiated
+        this flow, so we can eventually return to that page when login has completed.</p>
+
+    <button onclick="doAuthRequest()">Log in</button>
+
+</body>
+</html>

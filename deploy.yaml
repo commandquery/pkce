@@ -1,0 +1,70 @@
+#
+# Deploy login to kubernetes vultr.
+#
+# NOTE: for this to work you'll need to configure a personal access token in K8s/Github.
+# Information about doing that can be found here: https://stackoverflow.com/questions/72959144/k8s-to-pull-private-image-from-github-container-registry-ghcr-using-github-tok
+#
+# kubectl create secret docker-registry ghcr-login-secret --docker-server=https://ghcr.io --docker-username=$YOUR_GITHUB_USERNAME --docker-password=$YOUR_GITHUB_TOKEN --docker-email=$YOUR_EMAIL
+#
+# The secret name given in the above command is then specified in 'imagePullSecrets' in the specification.
+#
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: login
+  name: login
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: login
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: login
+  labels:
+    app: login
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: login
+  template:
+    metadata:
+      labels:
+        app: login
+    spec:
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      containers:
+        - name: login
+          image: ghcr.io/bookworkhq/login:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: login
+spec:
+  tls:
+    - hosts:
+        - hello.bookwork.com
+      secretName: cert-hello-bookwork-com
+  rules:
+  - host: hello.bookwork.com
+    http:
+      paths:
+      - path: /login
+        pathType: Prefix
+        backend:
+          service:
+            name: login
+            port:
+              number: 8080
