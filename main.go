@@ -128,6 +128,7 @@ func exchange(w http.ResponseWriter, r *http.Request) {
 		Secure:   config.Secure,
 		Domain:   config.Domain,
 		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
 	}
 
 	http.SetCookie(w, &cookie)
