@@ -10,7 +10,7 @@
 async function call(input, init) {
     const accessToken = sessionStorage.getItem("bookworkAccessToken")
     if (accessToken == null) {
-        window.location = "/login.html"
+        window.location = "{{ .Base }}/login.html"
         return
     }
 
@@ -26,6 +26,6 @@ async function call(input, init) {
 
     const r = await fetch(input, init)
     if (r.status === 401)
-        window.location = "/login.html"
+        window.location = "{{ .Base }}/login.html"
     return r
 }

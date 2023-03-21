@@ -47,6 +47,17 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          env:
+            - name: JWT_CLIENT_ID
+              value: "205769478103975430@bookwork"
+            - name: JWT_BASE
+              value: "https://hello.bookwork.com/login"
+            - name: JWT_DOMAIN
+              value: "bookwork.com"
+            - name: JWT_SECURE
+              value: "true"
+            - name: JWT_REDIRECT
+              value: "https://apps.bookwork.com/whoami"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

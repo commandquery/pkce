@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+    This page is used to verify the results of a login attempt. It securely converts
+    the provided login access code into a formal accessToken. An AccessToken is the thing
+    that actually grants a client access to an API. It's presented in the headers of the
+    API call. See the POC README for more detail.
+
+    See the JS code and the POC README for more information.
+
+    Note that it's possible to combine the login.html and authorize.html pages into a single
+    HTML page. However, doing so would make the process more opaque, so I've separated them
+    out for the POC.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authorize</title>
+    <!-- <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> -->
+    <link rel="stylesheet" href="{{ .Base }}/simple.min.css">
+
+    <script>
+        const clientID = "{{ .ClientID }}"
+        const redirectURI = "{{ .Base }}/authorize.html"
+        const tokenURL = "{{ .Issuer }}/oauth/v2/token"
+
+        // Obtain the access token from the server.
+        async function getAccessToken() {
+            const url = new URL(window.location)
+
+            // Once we use the code verifier, it can't be reused.
+            let codeVerifier = sessionStorage.getItem("bookworkCodeVerifier")
+            sessionStorage.removeItem("bookworkCodeVerifier")
+
+            // No code verifier? Back to login.
+            const params = url.searchParams
+            if (codeVerifier == null) {
+                window.location = "{{ .Base }}/login.html?" + params
+                return
+            }
+
+            params.set("code_verifier", codeVerifier)
+            window.location = "{{ .Base }}/exchange?" + params
+        }
+    </script>
+</head>
+<body>
+
+<h1>Logging you in...</h1>
+
+<script>getAccessToken()</script>
+
+</body>
+</html>

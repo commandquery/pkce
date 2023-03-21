@@ -12,16 +12,6 @@
     <title>Home</title>
     <script src="api.js"></script>
     <script>
-        async function doJWTCall() {
-            const status = document.getElementById("jwtStatus")
-            const r = await call("/backend/jwt");
-            console.log(r)
-            if (r.status === 200)
-                status.innerText = "API call succeeded!"
-            else
-                status.innerText = "API call failed! :( see console."
-        }
-
         function setAccessToken() {
             document.getElementById("accessToken").innerText = sessionStorage.getItem("bookworkAccessToken")
         }
@@ -66,6 +56,6 @@
     <code style="word-wrap: break-word; word-break: break-all" id="accessToken">
     </code>
 
-    <div style="cursor: pointer" onclick="debugJWT()"><img src="http://jwt.io/img/badge.svg"></div>
+    <div style="cursor: pointer" onclick="debugJWT()"><img src="https://jwt.io/img/badge.svg"></div>
 </body>
 </html>
