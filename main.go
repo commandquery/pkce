@@ -21,6 +21,7 @@ var embedFS embed.FS
 
 // Config can be overridden by environment variables
 type Config struct {
+	Prefix   string
 	ClientID string
 	Base     string
 	Issuer   string
@@ -40,6 +41,7 @@ var client = &http.Client{}
 //}
 
 var config = Config{
+	Prefix:   "",
 	ClientID: "205879184755607046@bookwork",
 	Base:     "http://localhost:8080",
 	Issuer:   "https://hello.bookwork.com",
@@ -138,6 +140,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	config.Prefix = override("JWT_PREFIX", config.Prefix)
 	config.ClientID = override("JWT_CLIENT_ID", config.ClientID)
 	config.Base = override("JWT_BASE", config.Base)
 	config.Issuer = override("JWT_ISSUER", config.Issuer)
@@ -149,9 +152,9 @@ func main() {
 	}
 
 	// Define the HTTP handler that will use the templates
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(config.Prefix+"/", func(w http.ResponseWriter, r *http.Request) {
 		// Parse the template with the given name
-		tmpl, err := template.ParseFS(templates, r.URL.Path[1:])
+		tmpl, err := template.ParseFS(templates, filepath.Base(r.URL.Path))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -167,6 +170,6 @@ func main() {
 	})
 
 	// Start the HTTP server
-	http.HandleFunc("/exchange", exchange)
+	http.HandleFunc(config.Prefix+"/exchange", exchange)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
