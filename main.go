@@ -2,22 +2,13 @@ package main
 
 import (
 	"embed"
-	"encoding/json"
-	"io"
-	"io/fs"
 	"log"
 	"mime"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
-	"time"
 )
-
-//go:embed templates
-var embedFS embed.FS
 
 // Config can be overridden by environment variables
 type Config struct {
@@ -32,14 +23,6 @@ type Config struct {
 
 var client = &http.Client{}
 
-// Config for production.
-// This is stored as overriding environment variables in deploy.yaml.
-//var prodConfig = Config{
-//	ClientID: "205769478103975430@bookwork",
-//	Base:     "https://hello.bookwork.com/login",
-//	Issuer:   "https://hello.bookwork.com",
-//}
-
 var config = Config{
 	Prefix:   "",
 	ClientID: "205879184755607046@bookwork",
@@ -48,6 +31,18 @@ var config = Config{
 	Redirect: "http://localhost:8080/home.html",
 	Domain:   "localhost",
 	Secure:   false,
+}
+
+//go:embed templates
+var embedFS embed.FS
+var templates *template.Template
+
+func init() {
+	var err error
+	templates, err = template.ParseFS(embedFS, "templates/*")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Override a value with an environment variable, if it's defined.
@@ -60,86 +55,23 @@ func override(env string, def string) string {
 	}
 }
 
-// Accept the login code and other parameters from the client, as well as the
-// challenge string, and call Zitadel to complete the PKCE login process.
-// We then set a HTTPOnly cookie containing the JWT.
-//
-// This needs to be done on the server side, because we can't set a HTTPOnly
-// cookie on the client side.
-func exchange(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+func writeTemplate(w http.ResponseWriter, path string) {
+	tmpl := templates.Lookup(path)
+	if tmpl == nil {
+		http.Error(w, path, http.StatusNotFound)
 		return
 	}
 
-	data := url.Values{}
-	data.Set("grant_type", "authorization_code")
-	data.Set("code", r.Form.Get("code"))
-	data.Set("redirect_uri", config.Base+"/authorize.html") // this is the URI that received the redirect. security feature?
-	data.Set("client_id", config.ClientID)
-	data.Set("code_verifier", r.Form.Get("code_verifier"))
+	w.Header().Set("Content-Type", mime.TypeByExtension(filepath.Ext(path)))
 
-	// Encode the form data
-	body := strings.NewReader(data.Encode())
-
-	// Create the request
-	req, err := http.NewRequest("POST", config.Issuer+"/oauth/v2/token", body)
-	if err != nil {
+	// Execute the template with the input data
+	if err := tmpl.Execute(w, &config); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// Set the content type header
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	// Create the HTTP client and send the request
-	resp, err := client.Do(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	b, err := io.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	token := struct {
-		AccessToken string `json:"access_token"`
-		TokenType   string `json:"token_type"`
-		ExpiresIn   int    `json:"expires_in"`
-		IdToken     string `json:"id_token"`
-	}{}
-
-	err = json.Unmarshal(b, &token)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	cookie := http.Cookie{
-		Name:     "jwt",
-		Value:    token.AccessToken,
-		Expires:  time.Now().Add(time.Duration(token.ExpiresIn) * time.Second),
-		HttpOnly: true,
-		Secure:   config.Secure,
-		Domain:   config.Domain,
-		SameSite: http.SameSiteLaxMode,
-		Path:     "/",
-	}
-
-	http.SetCookie(w, &cookie)
-	http.Redirect(w, r, config.Redirect, http.StatusFound)
 }
 
 func main() {
-	templates, err := fs.Sub(embedFS, "templates")
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	config.Prefix = override("JWT_PREFIX", config.Prefix)
 	config.ClientID = override("JWT_CLIENT_ID", config.ClientID)
@@ -152,21 +84,16 @@ func main() {
 		config.Secure = true
 	}
 
-	// Define the HTTP handler that will use the templates
-	http.HandleFunc(config.Prefix+"/", func(w http.ResponseWriter, r *http.Request) {
-		// Parse the template with the given name
-		tmpl, err := template.ParseFS(templates, filepath.Base(r.URL.Path))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", mime.TypeByExtension(filepath.Ext(r.URL.Path)))
-
-		// Execute the template with the input data
-		if err := tmpl.Execute(w, &config); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+	// Treat the root as if it's the login page, so that
+	//     hello.bookwork.com/login will serve login.html
+	// All other pages need to be named specifically.
+	// This simply makes it easier to redirect to a login page.
+	root := config.Prefix + "/"
+	http.HandleFunc(root, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == root {
+			writeTemplate(w, "login.html")
+		} else {
+			writeTemplate(w, filepath.Base(r.URL.Path))
 		}
 	})
 
