@@ -17,9 +17,9 @@ metadata:
   name: login
 spec:
   ports:
-  - port: 8080
+  - port: 8081
     protocol: TCP
-    targetPort: 8080
+    targetPort: 8081
   selector:
     app: login
 ---
@@ -46,7 +46,7 @@ spec:
           image: ghcr.io/bookworkhq/login:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 8081
           env:
             - name: JWT_CLIENT_ID
               value: "205769478103975430@bookwork"
@@ -80,4 +80,4 @@ spec:
           service:
             name: login
             port:
-              number: 8080
+              number: 8081

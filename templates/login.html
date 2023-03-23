@@ -7,9 +7,7 @@
 -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-
+  <title>Login</title>
   <script>
     async function doAuthRequest() {
         // TODO: these values need to be parameterised in the application.
@@ -19,8 +17,14 @@
 
         // We need to generate a Zitadel URL which asks it to log the user in.
         // The actual login process is described in the POC README.
-        const requestURL = new URL(authorizeURL)
-        const params = requestURL.searchParams
+        const redirectURL = new URL(authorizeURL)
+        const params = redirectURL.searchParams
+
+        // Add the "state" field to the redirect params.
+        let windowParams = new URLSearchParams(document.location.search);
+        const state = windowParams.get("state")
+        if (state != null)
+            params.append("state", state)
 
         // Generate a random challenge string. This is reused when getting the access token.
         // It's part of the PKCE flow. I've written more about this in the POC README and also
@@ -59,12 +63,10 @@
         params.append("code_challenge", digest64)
         params.append("code_challenge_method", "S256") // zitadel requires this to be S256 (= sha256)
 
-        window.location = requestURL
+        window.location = redirectURL
     }
   </script>
-
 </head>
-<body>
-    <script>doAuthRequest()</script>
+<body onload="doAuthRequest()">
 </body>
 </html>

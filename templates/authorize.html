@@ -9,13 +9,14 @@
 
     Note that it's possible to combine the login.html and authorize.html pages into a single
     HTML page. However, doing so would make the process more opaque, so I've separated them
-    out for the POC.
+    out.
+
+    We can't do this entirely on server-side because the browser holds the code verifier, which we
+    don't want to transmit until we get a response from the issuer. This is how PKCE works.
 -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Authorize</title>
-    <!-- <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> -->
+    <title>Authorizing</title>
     <link rel="stylesheet" href="{{ .Base }}/simple.min.css">
 
     <script>
@@ -43,11 +44,6 @@
         }
     </script>
 </head>
-<body>
-
-<h1>Logging you in...</h1>
-
-<script>getAccessToken()</script>
-
+<body onload="getAccessToken()">
 </body>
 </html>

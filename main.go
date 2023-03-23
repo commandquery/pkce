@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"log"
 	"mime"
 	"net/http"
@@ -26,9 +27,9 @@ var client = &http.Client{}
 var config = Config{
 	Prefix:   "",
 	ClientID: "205879184755607046@bookwork",
-	Base:     "http://localhost:8080",
+	Base:     "http://localhost:8081",
 	Issuer:   "https://hello.bookwork.com",
-	Redirect: "http://localhost:8080/home.html",
+	Redirect: "http://localhost:8081/home.html",
 	Domain:   "localhost",
 	Secure:   false,
 }
@@ -46,7 +47,7 @@ func init() {
 }
 
 // Override a value with an environment variable, if it's defined.
-func override(env string, def string) string {
+func override(def string, env string) string {
 	value := os.Getenv(env)
 	if value != "" {
 		return value
@@ -73,12 +74,12 @@ func writeTemplate(w http.ResponseWriter, path string) {
 
 func main() {
 
-	config.Prefix = override("JWT_PREFIX", config.Prefix)
-	config.ClientID = override("JWT_CLIENT_ID", config.ClientID)
-	config.Base = override("JWT_BASE", config.Base)
-	config.Issuer = override("JWT_ISSUER", config.Issuer)
-	config.Domain = override("JWT_DOMAIN", config.Domain)
-	config.Redirect = override("JWT_REDIRECT", config.Redirect)
+	config.Prefix = override(config.Prefix, "JWT_PREFIX")
+	config.ClientID = override(config.ClientID, "JWT_CLIENT_ID")
+	config.Base = override(config.Base, "JWT_BASE")
+	config.Issuer = override(config.Issuer, "JWT_ISSUER")
+	config.Domain = override(config.Domain, "JWT_DOMAIN")
+	config.Redirect = override(config.Redirect, "JWT_REDIRECT")
 
 	if os.Getenv("JWT_SECURE") == "true" {
 		config.Secure = true
@@ -97,7 +98,9 @@ func main() {
 		}
 	})
 
+	addr := ":8081"
+	fmt.Printf("listening on %s%s\n", addr, root)
 	// Start the HTTP server
-	http.HandleFunc(config.Prefix+"/exchange", exchange)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc(root+"exchange", exchange)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
