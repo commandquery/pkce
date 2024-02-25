@@ -27,8 +27,7 @@
             params.append("state", state)
 
         // Generate a random challenge string. This is reused when getting the access token.
-        // It's part of the PKCE flow. I've written more about this in the POC README and also
-        // in the authorise.html page.
+        // It's part of the PKCE flow.
         //
         // Generate a random byte array, and then convert it into a challenge string.
         // Note that it's the random string that we need here, not the byte array.
