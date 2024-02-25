@@ -26,9 +26,9 @@ var client = &http.Client{}
 
 var config = Config{
 	Prefix:   "",
-	ClientID: "205879184755607046@bookwork",
+	ClientID: "XXXX",
 	Base:     "http://localhost:8081",
-	Issuer:   "https://hello.bookwork.com",
+	Issuer:   "https://hello.coachcentric.online",
 	Redirect: "http://localhost:8081/home.html",
 	Domain:   "localhost",
 	Secure:   false,
@@ -86,7 +86,7 @@ func main() {
 	}
 
 	// Treat the root as if it's the login page, so that
-	//     hello.bookwork.com/login will serve login.html
+	//     $JWT_BASE/login will serve login.html
 	// All other pages need to be named specifically.
 	// This simply makes it easier to redirect to a login page.
 	root := config.Prefix + "/"

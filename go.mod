@@ -1,3 +1,3 @@
-module github.com/bookwork/login
+module github.com/commandquery/login
 
 go 1.20

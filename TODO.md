@@ -1,5 +1,10 @@
 # Login TODO
 
+- [ ] rename repo from "login" to "pkcs"
+- [ ] environment variable prefixes (JWT_) seem inappropriate
+- [ ] remove the coachcentric-specific deploy.yaml (move it to CC)
+- [ ] home.html is a useful debugging trick, document in README but make it disable-able 
+- [ ] make this a public repository and add a proper README
 - [ ] work out what happens when the JWT expires (set low JWT expiry time, eg 30 seconds)
       can we do something in Go which refreshes the expired JWT? page reload is no good.
 

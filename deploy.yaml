@@ -43,21 +43,21 @@ spec:
         - name: ghcr-login-secret
       containers:
         - name: login
-          image: ghcr.io/bookworkhq/login:latest
+          image: ghcr.io/commandquery/login:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
           env:
             - name: JWT_CLIENT_ID
-              value: "205769478103975430@bookwork"
+              value: "XXXXX"
             - name: JWT_BASE
-              value: "https://hello.bookwork.com/login"
+              value: "https://hello.coachcentric.online/login"
             - name: JWT_DOMAIN
-              value: "bookwork.com"
+              value: "coachcentric.online"
             - name: JWT_SECURE
               value: "true"
             - name: JWT_REDIRECT
-              value: "https://apps.bookwork.com/whoami"
+              value: "https://app.coachcentric.online/whoami"
             - name: JWT_PREFIX
               value: "/login"
 ---
@@ -68,10 +68,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - hello.bookwork.com
-      secretName: cert-hello-bookwork-com
+        - hello.coachcentric.online
+      secretName: cert-hello-coachcentric-online
   rules:
-  - host: hello.bookwork.com
+  - host: hello.coachcentric.online
     http:
       paths:
       - path: /login
