@@ -1,10 +1,10 @@
 # scratch is an empty image
-# FROM scratch
+FROM scratch
 # If you need /bin/sh and a few utilities, uncomment
 # the following line. It increases the image by 5.5 MB
-FROM alpine:latest
+#FROM alpine:latest
 
-RUN apk add gcompat
+#RUN apk add gcompat
 
 COPY pkce /bin/pkce
 # copy other files if needed
