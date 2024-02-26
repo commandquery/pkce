@@ -53,7 +53,7 @@ spec:
             - name: PKCE_CLIENT_ID
               value: "255702049671421989@coachcentric"
             - name: PKCE_BASE
-              value: "https://hello.coachcentric.online/login"
+              value: "https://hello.coachcentric.online/pkce"
             - name: PKCE_DOMAIN
               value: "coachcentric.online"
             - name: PKCE_SECURE
@@ -61,7 +61,7 @@ spec:
             - name: PKCE_REDIRECT
               value: "https://app.coachcentric.online/home"
             - name: PKCE_PREFIX
-              value: "/login"
+              value: "/pkce"
             - name: PKCE_COOKIE
               value: "Authorization"
 ---
