@@ -48,10 +48,12 @@ spec:
           ports:
             - containerPort: 8081
           env:
+            - name: JWT_ISSUER
+              value: "https://hello.coachcentric.online"
             - name: JWT_CLIENT_ID
               value: "255702049671421989@coachcentric"
             - name: JWT_BASE
-              value: "https://hello.coachcentric.online/login"
+              value: "https://app.coachcentric.online/login"
             - name: JWT_DOMAIN
               value: "coachcentric.online"
             - name: JWT_SECURE
@@ -70,10 +72,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - hello.coachcentric.online
-      secretName: cert-hello-coachcentric-online
+        - app.coachcentric.online
+      secretName: cert-app-coachcentric-online
   rules:
-  - host: hello.coachcentric.online
+  - host: app.coachcentric.online
     http:
       paths:
       - path: /login
