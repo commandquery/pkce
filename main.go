@@ -20,6 +20,7 @@ type Config struct {
 	Redirect string
 	Domain   string
 	Secure   bool
+	Cookie   string
 }
 
 var client = &http.Client{}
@@ -29,9 +30,10 @@ var config = Config{
 	ClientID: "XXXX",
 	Base:     "http://localhost:8081",
 	Issuer:   "https://hello.coachcentric.online",
-	Redirect: "http://localhost:8081/home.html",
+	Redirect: "http://localhost:8081/home.html", // default if there is no "state" provided
 	Domain:   "localhost",
 	Secure:   false,
+	Cookie:   "Authorization",
 }
 
 //go:embed templates

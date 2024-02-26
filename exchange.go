@@ -71,7 +71,7 @@ func exchange(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie := http.Cookie{
-		Name:     "jwt",
+		Name:     config.Cookie,
 		Value:    token.AccessToken,
 		Expires:  time.Now().Add(time.Duration(token.ExpiresIn) * time.Second),
 		HttpOnly: true,

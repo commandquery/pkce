@@ -1,5 +1,6 @@
 # Login TODO
 
+- [ ] why am I using cgo in the build process? CGO_ENABLED=1
 - [ ] rename repo from "login" to "pkcs"
 - [ ] environment variable prefixes (JWT_) seem inappropriate
 - [ ] remove the coachcentric-specific deploy.yaml (move it to CC)

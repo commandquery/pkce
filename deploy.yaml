@@ -49,7 +49,7 @@ spec:
             - containerPort: 8081
           env:
             - name: JWT_CLIENT_ID
-              value: "XXXXX"
+              value: "255702049671421989@coachcentric"
             - name: JWT_BASE
               value: "https://hello.coachcentric.online/login"
             - name: JWT_DOMAIN
@@ -57,9 +57,11 @@ spec:
             - name: JWT_SECURE
               value: "true"
             - name: JWT_REDIRECT
-              value: "https://app.coachcentric.online/whoami"
+              value: "https://app.coachcentric.online/home"
             - name: JWT_PREFIX
               value: "/login"
+            - name: JWT_COOKIE
+              value: "Authorization"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
