@@ -21,16 +21,16 @@ jobs:
           go get
 
       - name: Build
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o login
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o pkce
 
       - name: Docker
         run: |
-          docker build -t ghcr.io/commandquery/login -f Dockerfile .
+          docker build -t ghcr.io/commandquery/pkce -f Dockerfile .
 
       - name: Publish
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u doctor-eval --password-stdin
-          docker push ghcr.io/commandquery/login:latest
+          docker push ghcr.io/commandquery/pkce:latest
 
 
 
