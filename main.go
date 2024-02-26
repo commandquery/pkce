@@ -76,19 +76,19 @@ func writeTemplate(w http.ResponseWriter, path string) {
 
 func main() {
 
-	config.Prefix = override(config.Prefix, "JWT_PREFIX")
-	config.ClientID = override(config.ClientID, "JWT_CLIENT_ID")
-	config.Base = override(config.Base, "JWT_BASE")
-	config.Issuer = override(config.Issuer, "JWT_ISSUER")
-	config.Domain = override(config.Domain, "JWT_DOMAIN")
-	config.Redirect = override(config.Redirect, "JWT_REDIRECT")
+	config.Prefix = override(config.Prefix, "PKCE_PREFIX")
+	config.ClientID = override(config.ClientID, "PKCE_CLIENT_ID")
+	config.Base = override(config.Base, "PKCE_BASE")
+	config.Issuer = override(config.Issuer, "PKCE_ISSUER")
+	config.Domain = override(config.Domain, "PKCE_DOMAIN")
+	config.Redirect = override(config.Redirect, "PKCE_REDIRECT")
 
-	if os.Getenv("JWT_SECURE") == "true" {
+	if os.Getenv("PKCE_SECURE") == "true" {
 		config.Secure = true
 	}
 
 	// Treat the root as if it's the login page, so that
-	//     $JWT_BASE/login will serve login.html
+	//     $PKCE_BASE/login will serve login.html
 	// All other pages need to be named specifically.
 	// This simply makes it easier to redirect to a login page.
 	root := config.Prefix + "/"

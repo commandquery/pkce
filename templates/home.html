@@ -13,7 +13,7 @@
     <script src="api.js"></script>
     <script>
         function setAccessToken() {
-            document.getElementById("accessToken").innerText = sessionStorage.getItem("bookworkAccessToken")
+            document.getElementById("accessToken").innerText = sessionStorage.getItem("pkceAccessToken")
         }
 
         //
@@ -27,7 +27,7 @@
         // access token secret.
         //
         function debugJWT() {
-            jwtio = "https://jwt.io#token=" + sessionStorage.getItem("bookworkAccessToken")
+            jwtio = "https://jwt.io#token=" + sessionStorage.getItem("pkceAccessToken")
             console.log("redirecting to", jwtio)
             window.location = jwtio.toString()
         }

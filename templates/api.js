@@ -8,7 +8,7 @@
 // TODO: life is better with TypeScript
 //
 async function call(input, init) {
-    const accessToken = sessionStorage.getItem("bookworkAccessToken")
+    const accessToken = sessionStorage.getItem("pkceAccessToken")
     if (accessToken == null) {
         window.location = "{{ .Base }}/login.html"
         return

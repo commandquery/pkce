@@ -48,21 +48,21 @@ spec:
           ports:
             - containerPort: 8081
           env:
-            - name: JWT_ISSUER
+            - name: PKCE_ISSUER
               value: "https://hello.coachcentric.online"
-            - name: JWT_CLIENT_ID
+            - name: PKCE_CLIENT_ID
               value: "255702049671421989@coachcentric"
-            - name: JWT_BASE
-              value: "https://app.coachcentric.online/login"
-            - name: JWT_DOMAIN
+            - name: PKCE_BASE
+              value: "https://hello.coachcentric.online/login"
+            - name: PKCE_DOMAIN
               value: "coachcentric.online"
-            - name: JWT_SECURE
+            - name: PKCE_SECURE
               value: "true"
-            - name: JWT_REDIRECT
+            - name: PKCE_REDIRECT
               value: "https://app.coachcentric.online/home"
-            - name: JWT_PREFIX
+            - name: PKCE_PREFIX
               value: "/login"
-            - name: JWT_COOKIE
+            - name: PKCE_COOKIE
               value: "Authorization"
 ---
 apiVersion: networking.k8s.io/v1
@@ -72,10 +72,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - app.coachcentric.online
-      secretName: cert-app-coachcentric-online
+        - hello.coachcentric.online
+      secretName: cert-hello-coachcentric-online
   rules:
-  - host: app.coachcentric.online
+  - host: hello.coachcentric.online
     http:
       paths:
       - path: /login

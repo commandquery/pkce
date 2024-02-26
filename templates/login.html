@@ -47,7 +47,7 @@
 
         // Store the challenge in session storage for the authorizing page.
         // decode b64 to uint8 with https://stackoverflow.com/a/36046727/6716597
-        sessionStorage.setItem("bookworkCodeVerifier", challengeString)
+        sessionStorage.setItem("pkceCodeVerifier", challengeString)
 
         // It appears that padding is stripped off from the encoding.
         digest64 = digest64.replace(/=/g, '')

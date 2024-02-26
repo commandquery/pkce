@@ -29,8 +29,8 @@
             const url = new URL(window.location)
 
             // Once we use the code verifier, it can't be reused.
-            let codeVerifier = sessionStorage.getItem("bookworkCodeVerifier")
-            sessionStorage.removeItem("bookworkCodeVerifier")
+            let codeVerifier = sessionStorage.getItem("pkceCodeVerifier")
+            sessionStorage.removeItem("pkceCodeVerifier")
 
             // No code verifier? Back to login.
             const params = url.searchParams
