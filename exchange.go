@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -83,9 +84,17 @@ func exchange(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 
 	// The URL that started the login process should be set in "state".
-	redirectUrl := r.Form.Get("state")
-	if redirectUrl == "" {
+	var redirectUrl string
+	state := r.Form.Get("state")
+
+	if state != "" {
+		redirectUrl = state
+	} else {
 		redirectUrl = config.Redirect
+	}
+
+	if config.Log {
+		fmt.Printf("redirect to %s (state=%s)", redirectUrl)
 	}
 
 	http.Redirect(w, r, redirectUrl, http.StatusFound)

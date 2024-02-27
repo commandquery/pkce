@@ -13,26 +13,27 @@ import (
 
 // Config can be overridden by environment variables
 type Config struct {
-	Prefix   string
-	ClientID string
-	Base     string
-	Issuer   string
-	Redirect string
-	Domain   string
-	Secure   bool
-	Cookie   string
+	Base     string // URL base used to access this service.
+	Prefix   string // URL path prefix used to access this service.
+	Issuer   string // The OIDC issuer URI
+	ClientID string // Client ID as provided by the issuer
+	Redirect string // application home page; redirect to this on success if no "state" given
+	Domain   string // JWT Cookie domain
+	Secure   bool   // Use secure cookies for JWT?
+	Cookie   string // JWT Cookie name
+	Log      bool   // Print some debug logging?
 }
 
 var client = &http.Client{}
 
 var config = Config{
-	Prefix:   "",
-	ClientID: "XXXX",
-	Base:     "http://localhost:8081",
-	Issuer:   "https://hello.coachcentric.online",
-	Redirect: "http://localhost:8081/home.html", // default if there is no "state" provided
-	Domain:   "localhost",
-	Secure:   false,
+	Base:     "http://hello.example.com", // the PKCE service should probably live next to your auth services.
+	Prefix:   "/pkce",                    // redirect_url will be BASE + PREFIX + "/authorize.html"
+	ClientID: "",
+	Issuer:   "https://example.com",
+	Redirect: "http://app.example.com/home.", // The redirect should go a page in your app.
+	Domain:   "example.com",
+	Secure:   true,
 	Cookie:   "Authorization",
 }
 
@@ -56,6 +57,15 @@ func override(def string, env string) string {
 	} else {
 		return def
 	}
+}
+
+func flag(def bool, env string) bool {
+	value, ok := os.LookupEnv(env)
+	if !ok {
+		return def
+	}
+
+	return value == "true"
 }
 
 func writeTemplate(w http.ResponseWriter, path string) {
@@ -83,9 +93,8 @@ func main() {
 	config.Domain = override(config.Domain, "PKCE_DOMAIN")
 	config.Redirect = override(config.Redirect, "PKCE_REDIRECT")
 
-	if os.Getenv("PKCE_SECURE") == "true" {
-		config.Secure = true
-	}
+	config.Secure = flag(true, "PKCE_SECURE")
+	config.Log = flag(false, "PKCE_LOG")
 
 	// Treat the root as if it's the login page, so that
 	//     $PKCE_BASE/login will serve login.html
@@ -101,7 +110,10 @@ func main() {
 	})
 
 	addr := ":8081"
-	fmt.Printf("listening on %s%s\n", addr, root)
+	if config.Log {
+		fmt.Printf("listening on %s%s\n", addr, root)
+	}
+
 	// Start the HTTP server
 	http.HandleFunc(root+"exchange", exchange)
 	log.Fatal(http.ListenAndServe(addr, nil))
